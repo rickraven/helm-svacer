@@ -1,0 +1,28 @@
+{{- if not .Values.svacer.storage.existingClaim }}
+{{- if not .Values.svacer.storage.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-svacer-objects
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  accessModes:
+    - {{ .Values.svacer.storage.accessModes | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.svacer.storage.size | quote }}
+{{- if not .Values.svacer.storage.storageClass }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.svacer.storage.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}
+

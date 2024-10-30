@@ -1,0 +1,29 @@
+{{- if .Values.svacer.serviceGrpc.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-svacer-grpc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ .Release.Name }}-svacer
+    release: {{ .Release.Name }}
+  type: {{ .Values.svacer.serviceGrpc.type }}
+  ports:
+    - protocol: {{ .Values.svacer.serviceGrpc.protocol }}
+      port: {{ .Values.svacer.serviceGrpc.port }}
+      targetPort: {{ .Values.svacer.serviceGrpc.port }}
+  {{- if eq .Values.svacer.serviceGrpc.type "LoadBalancer" }}
+  {{- if .Values.svacer.serviceGrpc.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.svacer.serviceGrpc.loadBalancerIP }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+

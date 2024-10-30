@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-svacer
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  replicas: {{ .Values.svacer.replicas }}
+  selector:
+    matchLabels:
+      app: svacer
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: svacer
+        app.kubernetes.io/name: {{ .Release.Name }}-svacer
+        release: {{ .Release.Name }}
+{{- with .Values.svacer.podLabels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- if .Values.svacer.podAnnotations }}
+      {{- range $key, $value := .Values.svacer.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+{{- end }}
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.svacer.terminationGracePeriod }}
+      {{- if .Values.svacer.podSecurityContext.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.svacer.podSecurityContext.runAsUser }}
+        runAsGroup: {{ .Values.svacer.podSecurityContext.runAsGroup }}
+        fsGroup: {{ .Values.svacer.podSecurityContext.fsGroup }}
+        runAsNonRoot: {{ .Values.svacer.podSecurityContext.runAsNonRoot }}
+      {{- end }}
+      {{- if ( gt ( len .Values.initContainers ) 0 ) }}
+      initContainers:
+{{ toYaml .Values.initContainers | indent 8 }}
+      {{- end }}
+      containers:
+        - name: svacer
+          image: "{{ .Values.svacer.image.registry }}/{{ .Values.svacer.image.repository }}:{{ .Values.svacer.image.tag }}"
+          imagePullPolicy: {{ .Values.svacer.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args: 
+            - /svacer/bin/svacer-server 
+            - --memsettings={{ .Values.svacer.memsettings }}
+            - --log-level={{ .Values.svacer.logLevel }}
+            - run
+            - --pg postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_POST}/${PG_DB}
+            - --store /svacer/store
+            - --port {{ .Values.svacer.serviceWeb.port }}
+            - --grpc {{ .Values.svacer.serviceGrpc.port }}
+            {{- if .Values.ingress.enabled }}
+            {{- with (index .Values.ingress.hosts 0) }}
+            - --public-url {{ .name }}
+            {{- end }}
+            {{- end }}
+          ports:
+            - name: svacer-web
+              containerPort: {{ .Values.svacer.serviceWeb.port }}
+              protocol: {{ .Values.svacer.serviceWeb.protocol }}
+            - name: svacer-grpc
+              containerPort: {{ .Values.svacer.serviceGrpc.port }}
+              protocol: {{ .Values.svacer.serviceGrpc.protocol }}
+          {{- if .Values.svacer.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: {{ .Values.svacer.serviceWeb.port }}
+            failureThreshold: {{ .Values.svacer.readinessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.svacer.readinessProbe.periodSeconds }}
+            initialDelaySeconds: {{ .Values.svacer.readinessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.svacer.readinessProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.svacer.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: {{ .Values.svacer.serviceWeb.port }}
+            failureThreshold: {{ .Values.svacer.livenessProbe.failureThreshold }}
+            periodSeconds: {{ .Values.svacer.livenessProbe.periodSeconds }}
+            initialDelaySeconds: {{ .Values.svacer.livenessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.svacer.livenessProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.svacer.resources }}
+          resources:
+{{ toYaml .Values.svacer.resources | indent 12 }}
+          {{- end }}
+          {{- if not .Values.database.existingSecret }}
+          envFrom:
+            - secretRef:
+                name: {{ .Release.Name }}-svacer
+          {{- else }}
+          env:
+            - name: PG_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret.name }}
+                  key: {{ .Values.database.existingSecret.passwordKey }}
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret.name }}
+                  key: {{ .Values.database.existingSecret.usernameKey }}
+            - name: PG_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret.name }}
+                  key: {{ .Values.database.existingSecret.databaseKey }}
+            - name: PG_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret.name }}
+                  key: {{ .Values.database.existingSecret.hostKey }}
+            - name: PG_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.existingSecret.name }}
+                  key: {{ .Values.database.existingSecret.portKey }}
+          {{- end }}
+          volumeMounts:
+            - name: objetcs
+              mountPath: /svacer/store
+      volumes:
+        {{- if .Values.svacer.storage.enabled }}
+        - name: objetcs
+          persistentVolumeClaim:
+            {{- if .Values.svacer.storage.existingClaim }}
+            claimName: {{ .Values.svacer.storage.existingClaim }}
+            {{- else }}
+            claimName: {{ .Release.Name }}-svacer-objects
+            {{- end }}
+        {{- else }}
+        - name: objetcs 
+          emptyDir: 
+            sizeLimit: {{ .Values.svacer.storage.size | default "5Gi" }}
+        {{- end }}
+

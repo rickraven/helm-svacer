@@ -1,0 +1,126 @@
+# svacer chart variables spec
+
+
+# Svacer deployment spec
+svacer:
+  replicas: 1
+
+  podLables: {}
+  podAnnotations: {}
+
+  # Timeout for normal shutdown
+  terminationGracePeriod: 30
+
+  image:
+    registry: docker.io
+    repository: ispras/svacer
+    # Release history may be found here https://svacer.ispras.ru/mediawiki/index.php?title=Svacer
+    tag: 9-0-2
+    pullPolicy: IfNotPresent
+  
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  podSecurityContext:
+    enabled: false
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    runAsNonRoot: true
+  
+  # Web interface access service
+  serviceWeb:
+    enabled: true
+    port: 8080
+    protocol: TCP
+    type: ClusterIP
+    #loadBalancerIP: 8.8.8.8 
+
+  # SARIF analyze results uploads service
+  serviceGrpc:
+    enabled: true
+    port: 3002
+    protocol: TCP
+    type: ClusterIP
+    #loadBalancerIP: 8.8.8.8 
+
+  # Defines log level. Available: info, warn, error
+  logLevel: warn
+  # [Experimental] Defines memory usage settings
+  # Supported options: 
+  # - badger-tiny - reduce memory usage of badger key-value store
+  # - badger-metrics - turn on metrics calculation for badger
+  # - sync_writes - turn on sync writes to file system
+  # - server_minimal - turn on recommended settings for server with limited resources
+  memsettings: default
+
+  readinessProbe:
+    enabled: false
+    failureThreshold: 3
+    periodSeconds: 10
+    initialDelaySeconds: 60
+    timeoutSeconds: 5
+  
+  livenessProbe:
+    enabled: false
+    failureThreshold: 6
+    periodSeconds: 10
+    initialDelaySeconds: 60
+    timeoutSeconds: 5
+
+  # All savce objects will be lost if storage disabled
+  storage:
+    enabled: false
+    #storageClassName: ""
+    accessModes: ["ReadWriteOnce"]
+    size: 5Gi
+
+
+# Svacer needs postgresql database for service data storage
+# IMPORTAT: database user must have superuser permissions for 
+# extensions creation
+database:
+  # You may uncomment spe below to use existing secret with 
+  # database access creds. Other creds variables will no 
+  # be use if existingSecret exists
+  #existingSecret:
+  #  name: my-secret
+  #  passwordKey: password
+  #  uasernameKey: username
+  #  databaseKey: database
+  #  hostKey: host
+  #  portKey: port
+  password: "1234567890"
+  username: "svace"
+  database: "svace"
+  host: "database"
+  port: "5432"
+
+
+ingress:
+  enabled: false
+  # Used to create an Ingress record.
+  hosts:
+    - name: svacer.example.com
+      path: /
+  annotations: {}
+  # kubernetes.io/ingress.class: nginx
+  # kubernetes.io/tls-acme: "true"
+  # nginx.ingress.kubernetes.io/proxy-body-size: "8m"
+  # tls: 
+  # Secrets must be manually created in the namespace.
+  # - secretName: chart-example-tls
+  #   hosts:
+  #     - svacer.example.com
+
+initContainers: []
+

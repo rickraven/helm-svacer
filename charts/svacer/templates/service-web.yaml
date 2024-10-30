@@ -1,0 +1,29 @@
+{{- if .Values.svacer.serviceWeb.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-svacer-web
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ .Chart.Name }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ .Release.Name }}-svacer
+    release: {{ .Release.Name }}
+  type: {{ .Values.svacer.serviceWeb.type }}
+  ports:
+    - protocol: {{ .Values.svacer.serviceWeb.protocol }}
+      port: {{ .Values.svacer.serviceWeb.port }}
+      targetPort: {{ .Values.svacer.serviceWeb.port }}
+  {{- if eq .Values.svacer.serviceWeb.type "LoadBalancer" }}
+  {{- if .Values.svacer.serviceWeb.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.svacer.serviceWeb.loadBalancerIP }}
+  {{- end }}
+  {{- end }}
+{{- end }}
+
