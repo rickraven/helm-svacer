@@ -48,20 +48,7 @@ spec:
           image: "{{ .Values.svacer.image.registry }}/{{ .Values.svacer.image.repository }}:{{ .Values.svacer.image.tag }}"
           imagePullPolicy: {{ .Values.svacer.image.pullPolicy }}
           command: ["/bin/sh", "-c"]
-          args: 
-            - /svacer/bin/svacer-server 
-            - --memsettings={{ .Values.svacer.memsettings }}
-            - --log-level={{ .Values.svacer.logLevel }}
-            - run
-            - --pg postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_POST}/${PG_DB}
-            - --store /svacer/store
-            - --port {{ .Values.svacer.serviceWeb.port }}
-            - --grpc {{ .Values.svacer.serviceGrpc.port }}
-            {{- if .Values.ingress.enabled }}
-            {{- with (index .Values.ingress.hosts 0) }}
-            - --public-url {{ .name }}
-            {{- end }}
-            {{- end }}
+          args: ["/svacer/bin/svacer-server --memsettings={{ .Values.svacer.memsettings }} --log-level={{ .Values.svacer.logLevel }} run --pg postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_POST}/${PG_DB} --store /svacer/store --port {{ .Values.svacer.serviceWeb.port }} --grpc {{ .Values.svacer.serviceGrpc.port }} {{ if .Values.ingress.enabled }}{{ with (index .Values.ingress.hosts 0) }}--public-url {{ .name }}{{- end }}{{- end }}"]
           ports:
             - name: svacer-web
               containerPort: {{ .Values.svacer.serviceWeb.port }}
@@ -97,6 +84,11 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-svacer
+          {{- if .Values.metrics.enabled }}
+          env:
+            - name: SVACER_TRACE_OPTIONS
+              values: prom_metrics_on
+          {{- end }}
           {{- else }}
           env:
             - name: PG_PASS
@@ -123,7 +115,11 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.database.existingSecret.name }}
-                  key: {{ .Values.database.existingSecret.portKey }}
+                  key: {{ .Values.database.existingSecret.portKey }}   
+          {{- if .Values.metrics.enabled }}
+            - name: SVACER_TRACE_OPTIONS
+              values: prom_metrics_on
+          {{- end }}         
           {{- end }}
           volumeMounts:
             - name: objetcs

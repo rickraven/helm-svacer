@@ -81,7 +81,7 @@ svacer:
   storage:
     enabled: false
     #storageClassName: ""
-    accessModes: ["ReadWriteOnce"]
+    accessMode: ReadWriteOnce
     size: 5Gi
 
 
@@ -123,4 +123,14 @@ ingress:
   #     - svacer.example.com
 
 initContainers: []
+
+metrics:
+  enabled: false
+  # Deploy prometheus service monitor custom resource
+  # Can be used only with prometheus operator
+  # https://github.com/prometheus-operator/prometheus-operator
+  serviceMonitor:
+    enabled: false
+    inerval: 1m
+  
 

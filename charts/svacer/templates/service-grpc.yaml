@@ -6,6 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ .Chart.Name }}
+    service: grpc
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     app.kubernetes.io/instance: {{ .Release.Name }}
@@ -17,7 +18,8 @@ spec:
     release: {{ .Release.Name }}
   type: {{ .Values.svacer.serviceGrpc.type }}
   ports:
-    - protocol: {{ .Values.svacer.serviceGrpc.protocol }}
+    - name: grpc
+      protocol: {{ .Values.svacer.serviceGrpc.protocol }}
       port: {{ .Values.svacer.serviceGrpc.port }}
       targetPort: {{ .Values.svacer.serviceGrpc.port }}
   {{- if eq .Values.svacer.serviceGrpc.type "LoadBalancer" }}
