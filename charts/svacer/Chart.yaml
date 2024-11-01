@@ -2,7 +2,7 @@
 apiVersion: v2
 name: svacer
 appVersion: 9.0.2
-version: 0.1.0
+version: 0.2.0
 description: 
 home: https://svacer.ispras.ru/mediawiki
 icon: https://svacer.ispras.ru/mediawiki/images/6/6b/Knight_icon.png
