@@ -122,7 +122,9 @@ ingress:
   #   hosts:
   #     - svacer.example.com
 
+
 initContainers: []
+
 
 metrics:
   enabled: false
@@ -132,5 +134,23 @@ metrics:
   serviceMonitor:
     enabled: false
     inerval: 1m
-  
+
+
+# Svacer may be configured with ldap support
+# https://svacer.ispras.ru/mediawiki/index.php?title=LDAP_configuration
+ldap:
+  enabled: false
+  disableLocalAuth: false
+  # Ldap configuration must be stored in secret with json format
+  existingSecret: my-secret
+  existingSecretKey: ldap.json
+
+
+# Svacer support feature plugins
+# https://svacer.ispras.ru/mediawiki/index.php?title=Help:XSvacer
+xsvacer:
+  enabled: false
+  features: []
+  #  - webide
+  #  - docker
 

@@ -47,8 +47,31 @@ spec:
         - name: svacer
           image: "{{ .Values.svacer.image.registry }}/{{ .Values.svacer.image.repository }}:{{ .Values.svacer.image.tag }}"
           imagePullPolicy: {{ .Values.svacer.image.pullPolicy }}
-          command: ["/bin/sh", "-c"]
-          args: ["/svacer/bin/svacer-server --memsettings={{ .Values.svacer.memsettings }} --log-level={{ .Values.svacer.logLevel }} run --pg postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_POST}/${PG_DB} --store /svacer/store --port {{ .Values.svacer.serviceWeb.port }} --grpc {{ .Values.svacer.serviceGrpc.port }} {{ if .Values.ingress.enabled }}{{ with (index .Values.ingress.hosts 0) }}--public-url {{ .name }}{{- end }}{{- end }}"]
+          command: 
+            - /svacer/bin/svacer-server 
+            - --memsettings={{ .Values.svacer.memsettings }} 
+            - --log-level={{ .Values.svacer.logLevel }}
+            - run 
+            - --pg
+            - postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_POST}/${PG_DB}
+            - --store
+            - /svacer/store
+            - --port
+            - {{ .Values.svacer.serviceWeb.port }}
+            - --grpc
+            - {{ .Values.svacer.serviceGrpc.port }}
+            {{- if .Values.ingress.enabled }}
+            - {{ with (index .Values.ingress.hosts 0) }} --public-url {{ .name }}{{ end }}
+            {{- end }}
+            {{- if .Values.ldap.enabled }}
+            - --ldap /etc/svacer/ldap.json 
+            {{- if .Values.ldap.disableLocalAuth }}
+            - --disable-svacer-auth
+            {{- end }}
+            {{- end }}
+            {{- range .Values.xsvacer.features }}
+            - --xsvacer.features {{ . }}
+            {{- end }}
           ports:
             - name: svacer-web
               containerPort: {{ .Values.svacer.serviceWeb.port }}
@@ -124,7 +147,19 @@ spec:
           volumeMounts:
             - name: objetcs
               mountPath: /svacer/store
+            - name: ldapConf
+              mountPath: /etc/svacer
+              readOnly: true
+              subPath: ldap.json 
       volumes:
+        {{- if .Values.ldap.enabled }}
+        - name: ldapConf
+          secret:
+            secretName: {{ .Values.ldap.existingSecret }}
+            items:
+              - key: {{ .Values.ldap.existingSecretKey }}
+                path: ldap.json
+        {{- end }}
         {{- if .Values.svacer.storage.enabled }}
         - name: objetcs
           persistentVolumeClaim:
