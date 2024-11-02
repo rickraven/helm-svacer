@@ -57,11 +57,11 @@ spec:
             - --store
             - /svacer/store
             - --port
-            - {{ .Values.svacer.serviceWeb.port }}
+            - "{{ .Values.svacer.serviceWeb.port }}"
             - --grpc
-            - {{ .Values.svacer.serviceGrpc.port }}
+            - "{{ .Values.svacer.serviceGrpc.port }}"
             {{- if .Values.ingress.enabled }}
-            - {{ with (index .Values.ingress.hosts 0) }} --public-url {{ .name }}{{ end }}
+            - {{ with (index .Values.ingress.hosts 0) }}--public-url {{ .name }}{{ end }}
             {{- end }}
             {{- if .Values.ldap.enabled }}
             - --ldap /etc/svacer/ldap.json 
