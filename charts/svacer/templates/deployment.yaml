@@ -12,6 +12,8 @@ metadata:
     app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 spec:
   replicas: {{ .Values.svacer.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: svacer
@@ -53,7 +55,7 @@ spec:
             - --log-level={{ .Values.svacer.logLevel }}
             - run 
             - --pg
-            - postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_POST}/${PG_DB}
+            - postgres://$(PG_USER):$(PG_PASS)@$(PG_HOST):$(PG_PORT)/$(PG_DB)
             - --store
             - /svacer/store
             - --port
@@ -61,7 +63,10 @@ spec:
             - --grpc
             - "{{ .Values.svacer.serviceGrpc.port }}"
             {{- if .Values.ingress.enabled }}
-            - {{ with (index .Values.ingress.hosts 0) }}--public-url {{ .name }}{{ end }}
+            {{- with (index .Values.ingress.hosts 0) }}
+            - --public-url
+            - {{ .name }}
+            {{- end }}
             {{- end }}
             {{- if .Values.ldap.enabled }}
             - --ldap /etc/svacer/ldap.json 
@@ -69,8 +74,11 @@ spec:
             - --disable-svacer-auth
             {{- end }}
             {{- end }}
+            {{- if .Values.xsvacer.enabled }}
             {{- range .Values.xsvacer.features }}
-            - --xsvacer.features {{ . }}
+            - --xsvacer.features 
+            - {{ . }}
+            {{- end }}
             {{- end }}
           ports:
             - name: svacer-web
@@ -110,7 +118,7 @@ spec:
           {{- if .Values.metrics.enabled }}
           env:
             - name: SVACER_TRACE_OPTIONS
-              values: prom_metrics_on
+              value: prom_metrics_on
           {{- end }}
           {{- else }}
           env:
@@ -147,10 +155,12 @@ spec:
           volumeMounts:
             - name: objetcs
               mountPath: /svacer/store
+            {{- if .Values.ldap.enabled }}
             - name: ldapConf
               mountPath: /etc/svacer
               readOnly: true
               subPath: ldap.json 
+            {{- end }}
       volumes:
         {{- if .Values.ldap.enabled }}
         - name: ldapConf

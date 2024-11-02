@@ -18,10 +18,10 @@ spec:
   resources:
     requests:
       storage: {{ .Values.svacer.storage.size | quote }}
-{{- if not .Values.svacer.storage.storageClass }}
+{{- if not .Values.svacer.storage.storageClassName }}
   storageClassName: ""
 {{- else }}
-  storageClassName: "{{ .Values.svacer.storage.storageClass }}"
+  storageClassName: "{{ .Values.svacer.storage.storageClassName }}"
 {{- end }}
 {{- end }}
 {{- end }}
