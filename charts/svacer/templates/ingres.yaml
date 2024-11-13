@@ -11,12 +11,13 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- if .Values.ingress.annotations}}
   annotations:
+    nginx.org/websocket-services: {{ .Release.Name }}-svacer-web
+    {{- if .Values.ingress.annotations}}
     {{- range $key, $value := .Values.ingress.annotations }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
-{{- end }}
+    {{- end }}
 spec:
   rules:
     {{- range .Values.ingress.hosts }}

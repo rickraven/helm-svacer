@@ -69,7 +69,8 @@ spec:
             {{- end }}
             {{- end }}
             {{- if .Values.ldap.enabled }}
-            - --ldap /etc/svacer/ldap.json 
+            - --ldap 
+            - /etc/svacer/ldap.json 
             {{- if .Values.ldap.disableLocalAuth }}
             - --disable-svacer-auth
             {{- end }}
@@ -156,14 +157,13 @@ spec:
             - name: objetcs
               mountPath: /svacer/store
             {{- if .Values.ldap.enabled }}
-            - name: ldapConf
+            - name: ldap-conf
               mountPath: /etc/svacer
               readOnly: true
-              subPath: ldap.json 
             {{- end }}
       volumes:
         {{- if .Values.ldap.enabled }}
-        - name: ldapConf
+        - name: ldap-conf
           secret:
             secretName: {{ .Values.ldap.existingSecret }}
             items:
