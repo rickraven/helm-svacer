@@ -3,6 +3,22 @@ entries:
   svacer:
   - apiVersion: v2
     appVersion: 9.0.2
+    created: "2024-11-14T09:02:57.813262143Z"
+    digest: 2e5b621be792a8c0e24d68896991b26e686e8ace7c2a97769f5d2f25ed1052ee
+    home: https://svacer.ispras.ru/mediawiki
+    icon: https://svacer.ispras.ru/mediawiki/images/6/6b/Knight_icon.png
+    keywords:
+    - svacer
+    maintainers:
+    - email: kapitonov.stas200@gmail.com
+      name: rickraven
+      url: https://github.com/rickraven
+    name: svacer
+    urls:
+    - https://github.com/rickraven/helm-svacer/releases/download/svacer-0.3.0/svacer-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: 9.0.2
     created: "2024-11-01T11:34:09.478291689Z"
     digest: 30e671ee9343911489cb9467642c19655703e89a8df0aaeb964007b0aae5400d
     home: https://svacer.ispras.ru/mediawiki
@@ -17,4 +33,4 @@ entries:
     urls:
     - https://github.com/rickraven/helm-svacer/releases/download/svacer-0.2.1/svacer-0.2.1.tgz
     version: 0.2.1
-generated: "2024-11-01T11:34:09.479264986Z"
+generated: "2024-11-14T09:02:57.813274606Z"
