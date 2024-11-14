@@ -19,7 +19,7 @@ spec:
       release: {{ .Release.Name }}
       service: web
   endpoints:
-  - port: metrics
+  - port: web
     interval: {{ .Values.metrics.serviceMonitor.interval }}
     path: /api/metrics
 {{- end }}
