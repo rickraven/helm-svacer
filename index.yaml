@@ -3,6 +3,28 @@ entries:
   svacer:
   - apiVersion: v2
     appVersion: 9.0.2
+    created: "2024-12-19T08:32:02.837086571Z"
+    description: Svacer - server for storing and processing static analysis results.
+      Supports import of analysis results from Svace directly and from other analyzers
+      via the format SARIF
+    digest: 622839565ecb81161efde5c21629f63364a02d1b02f1252ec41f902c7449b5c8
+    home: https://svacer.ispras.ru/mediawiki
+    icon: https://svacer.ispras.ru/mediawiki/images/6/6b/Knight_icon.png
+    keywords:
+    - svacer
+    - sarif
+    - security
+    - analysis
+    maintainers:
+    - email: kapitonov.stas200@gmail.com
+      name: rickraven
+      url: https://github.com/rickraven
+    name: svacer
+    urls:
+    - https://github.com/rickraven/helm-svacer/releases/download/svacer-0.4.0/svacer-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: 9.0.2
     created: "2024-11-14T09:02:57.813262143Z"
     digest: 2e5b621be792a8c0e24d68896991b26e686e8ace7c2a97769f5d2f25ed1052ee
     home: https://svacer.ispras.ru/mediawiki
@@ -33,4 +55,4 @@ entries:
     urls:
     - https://github.com/rickraven/helm-svacer/releases/download/svacer-0.2.1/svacer-0.2.1.tgz
     version: 0.2.1
-generated: "2024-11-14T09:02:57.813274606Z"
+generated: "2024-12-19T08:32:02.837105306Z"
