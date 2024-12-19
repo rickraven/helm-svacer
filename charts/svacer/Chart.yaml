@@ -2,7 +2,7 @@
 apiVersion: v2
 name: svacer
 appVersion: 9.0.2
-version: 0.4.0
+version: 0.4.1
 description: Svacer - server for storing and processing static analysis results. Supports import of analysis results from Svace directly and from other analyzers via the format SARIF
 home: https://svacer.ispras.ru/mediawiki
 icon: https://svacer.ispras.ru/mediawiki/images/6/6b/Knight_icon.png
