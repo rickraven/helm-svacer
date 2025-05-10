@@ -15,7 +15,7 @@ svacer:
     registry: docker.io
     repository: ispras/svacer
     # Release history may be found here https://svacer.ispras.ru/mediawiki/index.php?title=Svacer
-    tag: 9-0-2
+    tag: 10-0-1
     pullPolicy: IfNotPresent
   
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -144,6 +144,11 @@ ldap:
   # Ldap configuration must be stored in secret with json format
   existingSecret: my-secret
   existingSecretKey: ldap.json
+
+
+# Auth settings
+auth:
+  tokenLifetime: "86400"
 
 
 # Svacer support feature plugins

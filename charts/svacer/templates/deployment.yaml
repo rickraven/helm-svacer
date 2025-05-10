@@ -116,11 +116,13 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ .Release.Name }}-svacer
-          {{- if .Values.metrics.enabled }}
           env:
+            - name: SVACER_TOKEN_LIFETIME
+              value: {{ .Values.auth.tokenLifetime }}
+            {{- if .Values.metrics.enabled }}
             - name: SVACER_TRACE_OPTIONS
               value: prom_metrics_on
-          {{- end }}
+            {{- end }}
           {{- else }}
           env:
             - name: PG_PASS
@@ -147,11 +149,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.database.existingSecret.name }}
-                  key: {{ .Values.database.existingSecret.portKey }}   
-          {{- if .Values.metrics.enabled }}
+                  key: {{ .Values.database.existingSecret.portKey }}  
+            - name: SVACER_TOKEN_LIFETIME
+              value: {{ .Values.auth.tokenLifetime }} 
+            {{- if .Values.metrics.enabled }}
             - name: SVACER_TRACE_OPTIONS
               values: prom_metrics_on
-          {{- end }}         
+            {{- end }}         
           {{- end }}
           volumeMounts:
             - name: objetcs

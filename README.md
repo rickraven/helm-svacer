@@ -63,7 +63,7 @@ The following table lists the configurable parameters of the svacer chart and th
 | `svacer.terminationGracePeriod` | Timeout for normal shutdown in seconds | `30` |
 | `svacer.image.registry` |  | `docker.io` |
 | `svacer.image.repository` |  | `ispras/svacer` |
-| `svacer.image.tag` |  | `9-0-2` |
+| `svacer.image.tag` |  | `10-0-1` |
 | `svacer.image.pullPolicy` |  | `IfNotPresent` |
 | `svacer.resources` | CPU/Memory resource requests/limits | `{}` |
 | `svacer.podSecurityContext.enabled` | Enable podSecurityContext for svacer pod | `false` |
